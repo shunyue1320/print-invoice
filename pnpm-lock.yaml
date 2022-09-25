@@ -1,16 +1,22 @@
 lockfileVersion: 5.4
 
 specifiers:
+  '@element-plus/icons-vue': ^2.0.9
   '@vitejs/plugin-vue': ^3.1.0
+  '@vueuse/core': ^9.2.0
   element-plus: ^2.2.17
   prettier: ^2.7.1
   vite: ^3.1.0
   vue: ^3.2.37
+  vue-router: ^4.1.5
   xlsx: https://cdn.sheetjs.com/xlsx-0.18.12/xlsx-0.18.12.tgz
 
 dependencies:
+  '@element-plus/icons-vue': 2.0.9_vue@3.2.39
+  '@vueuse/core': 9.2.0_vue@3.2.39
   element-plus: 2.2.17_vue@3.2.39
   vue: 3.2.39
+  vue-router: 4.1.5_vue@3.2.39
   xlsx: '@cdn.sheetjs.com/xlsx-0.18.12/xlsx-0.18.12.tgz'
 
 devDependencies:
@@ -146,6 +152,10 @@ packages:
     dependencies:
       '@vue/compiler-dom': 3.2.39
       '@vue/shared': 3.2.39
+
+  /@vue/devtools-api/6.3.0:
+    resolution: {integrity: sha512-OfjtreoF3LtHmte3TrWSoZcyL4XWBL5+dTnCARuJZzTCYuaaO29PGMKCKdmXi4CZ0SiN0Exz1IGSo2S5BgDwEQ==}
+    dev: false
 
   /@vue/reactivity-transform/3.2.39:
     resolution: {integrity: sha512-HGuWu864zStiWs9wBC6JYOP1E00UjMdDWIG5W+FpUx28hV3uz9ODOKVNm/vdOy/Pvzg8+OcANxAVC85WFBbl3A==}
@@ -624,6 +634,15 @@ packages:
       '@vue/composition-api':
         optional: true
     dependencies:
+      vue: 3.2.39
+    dev: false
+
+  /vue-router/4.1.5_vue@3.2.39:
+    resolution: {integrity: sha512-IsvoF5D2GQ/EGTs/Th4NQms9gd2NSqV+yylxIyp/OYp8xOwxmU8Kj/74E9DTSYAyH5LX7idVUngN3JSj1X4xcQ==}
+    peerDependencies:
+      vue: ^3.2.0
+    dependencies:
+      '@vue/devtools-api': 6.3.0
       vue: 3.2.39
     dev: false
 

@@ -1,6 +1,6 @@
 import { createRouter, createWebHashHistory } from 'vue-router';
 
-export const Layout = () => import('/layout/Layout.vue');
+export const Layout = () => import('../layout/index.vue');
 
 export const constantRouterMap = [
   {
@@ -25,18 +25,35 @@ export const constantRouterMap = [
     children: [
       {
         path: 'invoice',
-        component: () => import('@/views/dashboard/invoice.vue'),
+        component: () => import('../views/dashboard/invoice/index.vue'),
         name: '发货单',
         meta: {
-          title: t('router.workplace'),
+          title: '发货单',
+        },
+      },
+      {
+        path: 'invoicedetails',
+        component: () => import('../views/dashboard/invoice/details.vue'),
+        name: '发货单详情',
+        meta: {
+          title: '发货单详情',
         },
       },
       {
         path: 'quotedprice',
-        component: () => import('@/views/dashboard/quotedprice.vue'),
+        component: () => import('../views/dashboard/quotedprice/index.vue'),
         name: '报价单',
         meta: {
-          title: t('router.analysis'),
+          title: '报价单',
+          affix: true,
+        },
+      },
+      {
+        path: 'quotedpricedetails',
+        component: () => import('../views/dashboard/quotedprice/details.vue'),
+        name: '报价单详情',
+        meta: {
+          title: '报价单详情',
           affix: true,
         },
       },
