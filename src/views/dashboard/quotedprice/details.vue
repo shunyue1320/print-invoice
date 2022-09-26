@@ -1,6 +1,6 @@
 <script setup>
-import { ref, onMounted } from 'vue';
-import { useRoute } from 'vue-router';
+import { ref, onMounted, watchEffect } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
 import { ElMessage } from 'element-plus';
 import { read, utils, writeFileXLSX } from 'xlsx';
 
@@ -33,12 +33,13 @@ function getQuotedpricelist() {
 
 const route = useRoute();
 onMounted(async () => {
-  if (route.params.time) {
-    time.value = route.params.time;
+  console.log('route.query.time', route.query.time);
+  if (route.query.time) {
+    time.value = route.query.time;
 
     let quotedpricelist = getQuotedpricelist();
 
-    const quotedpriceRes = quotedpricelist.find(i => i.time === time.value);
+    const quotedpriceRes = quotedpricelist.find(i => i.time == time.value);
     if (quotedpriceRes) {
       rows.value = quotedpriceRes.rows;
       heads.value = Object.keys(quotedpriceRes.rows[0]);
@@ -47,18 +48,20 @@ onMounted(async () => {
   }
 });
 
-const exportXLSX = async e => {
-  const file = e.target.files[0];
-  const data = await file.arrayBuffer();
-  const wb = read(data);
-  const ws = wb.Sheets[wb.SheetNames[0]];
-  console.log('utils.sheet_to_json(ws) ===', utils, utils.sheet_to_json(ws));
-  rows.value = utils.sheet_to_json(ws);
-  heads.value = Object.keys(rows.value[0]);
-  // setHTML(XLSX.utils.sheet_to_html(ws, { id: "tabeller" }));
-};
+const fileList = ref([]);
+watchEffect(async () => {
+  if (fileList.value[0]) {
+    const data = await fileList.value[0].raw.arrayBuffer();
+    const wb = read(data);
+    const ws = wb.Sheets[wb.SheetNames[0]];
+    console.log('utils.sheet_to_json(ws) ===', utils, utils.sheet_to_json(ws));
+    rows.value = utils.sheet_to_json(ws);
+    heads.value = Object.keys(rows.value[0]);
+  }
+});
 
-function save() {
+const router = useRouter();
+function onSubmit() {
   if (!quotedpriceTitle.value) {
     ElMessage({
       message: '请填写报价单标题',
@@ -70,11 +73,31 @@ function save() {
   let quotedpricelist = getQuotedpricelist();
 
   quotedpricelist.push({
-    time: new Date().getTime(),
+    time: time.value || new Date().getTime(),
     title: quotedpriceTitle.value,
     rows: rows.value,
   });
   localStorage.setItem('quotedpricelist', JSON.stringify(quotedpricelist));
+  router.push({ path: '/dashboard/quotedprice' });
+}
+
+function onDelete() {
+  if (!time.value) {
+    ElMessage({
+      message: '还没有创建报价单',
+      type: 'warning',
+    });
+  }
+
+  let quotedpricelist = getQuotedpricelist();
+
+  quotedpricelist.push({
+    time: time.value || new Date().getTime(),
+    title: quotedpriceTitle.value,
+    rows: rows.value,
+  });
+  localStorage.setItem('quotedpricelist', JSON.stringify(quotedpricelist));
+  router.push({ path: '/dashboard/quotedprice' });
 }
 
 /* get state data and export to XLSX */
@@ -89,13 +112,28 @@ function exportFile() {
 
 <template>
   <div class="quotedprice-details-form">
-    <el-input
-      v-model="quotedpriceTitle"
-      placeholder="请填写报价单标题"
-      style="width: 200px; margin-right: 10px"
-    />
-    <input type="file" @change="exportXLSX" />
-    <el-button type="primary" @click="save">确定</el-button>
+    <el-form label-width="120px">
+      <el-form-item label="报价单标题">
+        <el-input v-model="quotedpriceTitle" placeholder="请填写报价单标题" />
+      </el-form-item>
+      <el-form-item label="报价单表格">
+        <el-upload
+          v-model:file-list="fileList"
+          :auto-upload="false"
+          accept=".xlsx, .xls"
+          :limit="1"
+        >
+          <el-button type="primary">上传 excal 表格</el-button>
+          <template #tip>
+            <div class="el-upload__tip">xlsx/xls 文件大小小于500KB.</div>
+          </template>
+        </el-upload>
+      </el-form-item>
+      <el-form-item>
+        <el-button type="primary" @click="onSubmit">确定</el-button>
+        <el-button type="danger" @click="onDelete">删除</el-button>
+      </el-form-item>
+    </el-form>
   </div>
   <div>
     <table>
