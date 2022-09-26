@@ -87,15 +87,21 @@ function onDelete() {
       message: '还没有创建报价单',
       type: 'warning',
     });
+    return;
   }
 
   let quotedpricelist = getQuotedpricelist();
 
-  quotedpricelist.push({
-    time: time.value || new Date().getTime(),
-    title: quotedpriceTitle.value,
-    rows: rows.value,
-  });
+  const index = quotedpricelist.findIndex(item => item.time == time.value);
+  if (index === -1) {
+    ElMessage({
+      message: '没有该报价单',
+      type: 'warning',
+    });
+    return;
+  }
+
+  quotedpricelist.splice(index, 1);
   localStorage.setItem('quotedpricelist', JSON.stringify(quotedpricelist));
   router.push({ path: '/dashboard/quotedprice' });
 }
