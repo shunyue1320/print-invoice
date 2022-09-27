@@ -1,121 +1,3 @@
-<script setup>
-import { ref, onMounted, watchEffect } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
-import { ElMessage } from 'element-plus';
-import { read, utils, writeFileXLSX } from 'xlsx';
-
-const time = ref();
-const quotedpriceTitle = ref('');
-const heads = ref(['品名', '单位', '单价']);
-const rows = ref([
-  {
-    品名: '丝瓜',
-    单位: '斤',
-    单价: 8,
-  },
-  {
-    品名: '芥兰苗',
-    单位: '斤',
-    单价: 6,
-  },
-]);
-
-function getQuotedpricelist() {
-  let quotedpricelist = localStorage.getItem('quotedpricelist');
-  if (!quotedpricelist) {
-    quotedpricelist = [];
-  } else {
-    quotedpricelist = JSON.parse(quotedpricelist);
-  }
-
-  return quotedpricelist;
-}
-
-const route = useRoute();
-onMounted(async () => {
-  console.log('route.query.time', route.query.time);
-  if (route.query.time) {
-    time.value = route.query.time;
-
-    let quotedpricelist = getQuotedpricelist();
-
-    const quotedpriceRes = quotedpricelist.find(i => i.time == time.value);
-    if (quotedpriceRes) {
-      rows.value = quotedpriceRes.rows;
-      heads.value = Object.keys(quotedpriceRes.rows[0]);
-      quotedpriceTitle.value = quotedpriceRes.title;
-    }
-  }
-});
-
-const fileList = ref([]);
-watchEffect(async () => {
-  if (fileList.value[0]) {
-    const data = await fileList.value[0].raw.arrayBuffer();
-    const wb = read(data);
-    const ws = wb.Sheets[wb.SheetNames[0]];
-    console.log('utils.sheet_to_json(ws) ===', utils, utils.sheet_to_json(ws));
-    rows.value = utils.sheet_to_json(ws);
-    heads.value = Object.keys(rows.value[0]);
-  }
-});
-
-const router = useRouter();
-function onSubmit() {
-  if (!quotedpriceTitle.value) {
-    ElMessage({
-      message: '请填写报价单标题',
-      type: 'warning',
-    });
-    return;
-  }
-
-  let quotedpricelist = getQuotedpricelist();
-
-  quotedpricelist.push({
-    time: time.value || new Date().getTime(),
-    title: quotedpriceTitle.value,
-    rows: rows.value,
-  });
-  localStorage.setItem('quotedpricelist', JSON.stringify(quotedpricelist));
-  router.push({ path: '/dashboard/quotedprice' });
-}
-
-function onDelete() {
-  if (!time.value) {
-    ElMessage({
-      message: '还没有创建报价单',
-      type: 'warning',
-    });
-    return;
-  }
-
-  let quotedpricelist = getQuotedpricelist();
-
-  const index = quotedpricelist.findIndex(item => item.time == time.value);
-  if (index === -1) {
-    ElMessage({
-      message: '没有该报价单',
-      type: 'warning',
-    });
-    return;
-  }
-
-  quotedpricelist.splice(index, 1);
-  localStorage.setItem('quotedpricelist', JSON.stringify(quotedpricelist));
-  router.push({ path: '/dashboard/quotedprice' });
-}
-
-/* get state data and export to XLSX */
-function exportFile() {
-  exportHead = [];
-  const ws = utils.json_to_sheet(rows.value);
-  const wb = utils.book_new();
-  utils.book_append_sheet(wb, ws, 'Data');
-  writeFileXLSX(wb, '发货单.xlsx');
-}
-</script>
-
 <template>
   <div class="quotedprice-details-form">
     <el-form label-width="120px">
@@ -154,6 +36,128 @@ function exportFile() {
     </table>
   </div>
 </template>
+
+<script setup>
+import { ref, onMounted, watchEffect } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
+import { ElMessage } from 'element-plus';
+import { read, utils, writeFileXLSX } from 'xlsx';
+
+const time = ref();
+const quotedpriceTitle = ref('');
+const heads = ref(['品名', '单位', '单价']);
+const rows = ref([
+  {
+    品名: '丝瓜',
+    单位: '斤',
+    单价: 8,
+  },
+  {
+    品名: '芥兰苗',
+    单位: '斤',
+    单价: 6,
+  },
+]);
+
+function getQuotedpricelist() {
+  let quotedpricelist = localStorage.getItem('quotedpricelist');
+  if (!quotedpricelist) {
+    quotedpricelist = [];
+  } else {
+    quotedpricelist = JSON.parse(quotedpricelist);
+  }
+
+  return quotedpricelist;
+}
+
+const route = useRoute();
+onMounted(async () => {
+  if (route.query.time) {
+    time.value = route.query.time;
+
+    let quotedpricelist = getQuotedpricelist();
+
+    const quotedpriceRes = quotedpricelist.find(i => i.time == time.value);
+    if (quotedpriceRes) {
+      rows.value = quotedpriceRes.rows;
+      heads.value = Object.keys(quotedpriceRes.rows[0]);
+      quotedpriceTitle.value = quotedpriceRes.title;
+    }
+  }
+});
+
+const fileList = ref([]);
+watchEffect(async () => {
+  if (fileList.value[0]) {
+    const data = await fileList.value[0].raw.arrayBuffer();
+    const wb = read(data);
+    const ws = wb.Sheets[wb.SheetNames[0]];
+    console.log('utils.sheet_to_json(ws) ===', utils, utils.sheet_to_json(ws));
+    rows.value = utils.sheet_to_json(ws);
+    heads.value = Object.keys(rows.value[0]);
+  }
+});
+
+const router = useRouter();
+function onSubmit() {
+  if (!quotedpriceTitle.value) {
+    ElMessage({
+      message: '请填写报价单标题',
+      type: 'warning',
+    });
+    return;
+  }
+
+  let quotedpricelist = getQuotedpricelist();
+  const quotedprice = quotedpricelist.find(item => item.time == time.value);
+  if (quotedprice) {
+    quotedprice.title = quotedpriceTitle.value;
+    quotedprice.rows = rows.value;
+  } else {
+    quotedpricelist.push({
+      time: new Date().getTime(),
+      title: quotedpriceTitle.value,
+      rows: rows.value,
+    });
+  }
+
+  localStorage.setItem('quotedpricelist', JSON.stringify(quotedpricelist));
+  router.push({ path: '/dashboard/quotedprice' });
+}
+
+function onDelete() {
+  if (!time.value) {
+    ElMessage({
+      message: '还没有创建报价单',
+      type: 'warning',
+    });
+    return;
+  }
+
+  let quotedpricelist = getQuotedpricelist();
+  const index = quotedpricelist.findIndex(item => item.time == time.value);
+  if (index === -1) {
+    ElMessage({
+      message: '没有该报价单',
+      type: 'warning',
+    });
+    return;
+  }
+
+  quotedpricelist.splice(index, 1);
+  localStorage.setItem('quotedpricelist', JSON.stringify(quotedpricelist));
+  router.push({ path: '/dashboard/quotedprice' });
+}
+
+/* get state data and export to XLSX */
+function exportFile() {
+  exportHead = [];
+  const ws = utils.json_to_sheet(rows.value);
+  const wb = utils.book_new();
+  utils.book_append_sheet(wb, ws, 'Data');
+  writeFileXLSX(wb, '发货单.xlsx');
+}
+</script>
 
 <style scoped>
 .quotedprice-details-form {

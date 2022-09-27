@@ -1,23 +1,3 @@
-<script setup>
-import { ref, onMounted } from 'vue';
-
-function getQuotedpricelist() {
-  let quotedpricelist = localStorage.getItem('quotedpricelist');
-  if (!quotedpricelist) {
-    quotedpricelist = [];
-  } else {
-    quotedpricelist = JSON.parse(quotedpricelist);
-  }
-
-  return quotedpricelist;
-}
-
-const quotedpricelist = ref([]);
-onMounted(() => {
-  quotedpricelist.value = getQuotedpricelist();
-});
-</script>
-
 <template>
   <el-button type="primary" style="margin: 10px">
     <router-link to="/dashboard/quotedpricedetails"> 添加报价单 </router-link>
@@ -42,6 +22,26 @@ onMounted(() => {
     </div>
   </div>
 </template>
+
+<script setup>
+import { ref, onMounted } from 'vue';
+
+function getQuotedpricelist() {
+  let quotedpricelist = localStorage.getItem('quotedpricelist');
+  if (!quotedpricelist) {
+    quotedpricelist = [];
+  } else {
+    quotedpricelist = JSON.parse(quotedpricelist);
+  }
+
+  return quotedpricelist;
+}
+
+const quotedpricelist = ref([]);
+onMounted(() => {
+  quotedpricelist.value = getQuotedpricelist();
+});
+</script>
 
 <style scoped>
 .quotedprice-container {
