@@ -1,6 +1,6 @@
 <template>
-  <el-button type="primary" style="margin: 10px">
-    <router-link to="/dashboard/quotedpricedetails"> 添加报价单 </router-link>
+  <el-button type="primary" style="margin: 10px" @click="toLink('/dashboard/quotedpricedetails')">
+    添加报价单
   </el-button>
   <div class="quotedprice-container">
     <div v-for="item in quotedpricelist" :key="item.time" class="quotedprice-item-container">
@@ -16,7 +16,12 @@
           </div>
         </template>
         <div class="card-content">
-          <div v-for="o in Object.keys(item.rows[0])" :key="o" class="text item">{{ o }}</div>
+          <div class="card-type-list">
+            <div v-for="o in Object.keys(item.rows[0]).filter(i => i !== '_id')" :key="o">
+              {{ o }}
+            </div>
+          </div>
+          <div>创建日期：{{ dayjs(item.time).format('YYYY-MM-DD HH:mm') }}</div>
         </div>
       </el-card>
     </div>
@@ -25,6 +30,8 @@
 
 <script setup>
 import { ref, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
+import dayjs from 'dayjs';
 
 function getQuotedpricelist() {
   let quotedpricelist = localStorage.getItem('quotedpricelist');
@@ -41,6 +48,11 @@ const quotedpricelist = ref([]);
 onMounted(() => {
   quotedpricelist.value = getQuotedpricelist();
 });
+
+const router = useRouter();
+const toLink = path => {
+  router.push({ path: path });
+};
 </script>
 
 <style scoped>
@@ -57,21 +69,16 @@ onMounted(() => {
   align-items: center;
 }
 
-.card-content {
+.card-type-list {
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
 
-.text {
-  font-size: 14px;
-}
-
-.item {
-  margin-bottom: 18px;
-}
-
 .box-card {
   width: 300px;
+}
+.f-f {
+  color: #fff;
 }
 </style>

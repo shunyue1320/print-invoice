@@ -29,7 +29,7 @@
         <th v-for="name in heads" :key="name">{{ name }}</th>
       </thead>
       <tbody>
-        <tr v-for="(row, idx) in rows" :key="idx">
+        <tr v-for="row in rows" :key="row._id">
           <td v-for="name in heads" :key="name">{{ row[name] }}</td>
         </tr>
       </tbody>
@@ -41,22 +41,21 @@
 import { ref, onMounted, watchEffect } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { ElMessage } from 'element-plus';
-import { read, utils, writeFileXLSX } from 'xlsx';
+import { read, utils } from 'xlsx';
 
 const time = ref();
 const quotedpriceTitle = ref('');
 const heads = ref(['品名', '单位', '单价']);
 const rows = ref([
-  {
-    品名: '丝瓜',
-    单位: '斤',
-    单价: 8,
-  },
-  {
-    品名: '芥兰苗',
-    单位: '斤',
-    单价: 6,
-  },
+  { 品名: '丝瓜', 单位: '斤', 单价: 8 },
+  { 品名: '芥兰苗', 单位: '斤', 单价: 6 },
+  { 品名: '宁夏芥兰', 单位: '斤', 单价: 7 },
+  { 品名: '本地芥兰', 单位: '斤', 单价: 5 },
+  { 品名: '广东芥兰', 单位: '斤', 单价: 5 },
+  { 品名: '水东芥菜', 单位: '斤', 单价: 6 },
+  { 品名: '本地菜心', 单位: '斤', 单价: 5 },
+  { 品名: '苋菜', 单位: '斤', 单价: 6.5 },
+  { 品名: '紫椰菜', 单位: '斤', 单价: 4 },
 ]);
 
 function getQuotedpricelist() {
@@ -70,6 +69,10 @@ function getQuotedpricelist() {
   return quotedpricelist;
 }
 
+function setInvoiceHeads() {
+  heads.value = Object.keys(rows.value[0]).filter(i => i !== '_id');
+}
+
 const route = useRoute();
 onMounted(async () => {
   if (route.query.time) {
@@ -80,7 +83,8 @@ onMounted(async () => {
     const quotedpriceRes = quotedpricelist.find(i => i.time == time.value);
     if (quotedpriceRes) {
       rows.value = quotedpriceRes.rows;
-      heads.value = Object.keys(quotedpriceRes.rows[0]);
+      setInvoiceHeads();
+      // heads.value = Object.keys(quotedpriceRes.rows[0]);
       quotedpriceTitle.value = quotedpriceRes.title;
     }
   }
@@ -114,10 +118,11 @@ function onSubmit() {
     quotedprice.title = quotedpriceTitle.value;
     quotedprice.rows = rows.value;
   } else {
-    quotedpricelist.push({
+    const _rows = rows.value.map((row, index) => ({ ...row, _id: index }));
+    quotedpricelist.unshift({
       time: new Date().getTime(),
       title: quotedpriceTitle.value,
-      rows: rows.value,
+      rows: _rows,
     });
   }
 
@@ -147,15 +152,6 @@ function onDelete() {
   quotedpricelist.splice(index, 1);
   localStorage.setItem('quotedpricelist', JSON.stringify(quotedpricelist));
   router.push({ path: '/dashboard/quotedprice' });
-}
-
-/* get state data and export to XLSX */
-function exportFile() {
-  exportHead = [];
-  const ws = utils.json_to_sheet(rows.value);
-  const wb = utils.book_new();
-  utils.book_append_sheet(wb, ws, 'Data');
-  writeFileXLSX(wb, '发货单.xlsx');
 }
 </script>
 

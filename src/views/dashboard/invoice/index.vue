@@ -4,12 +4,29 @@
       添加发货单
     </el-button>
 
-    <el-dialog v-model="dialogFormVisible" title="Shipping address">
+    <div class="invoice-container">
+      <el-card v-for="item in invoicelist" :key="item.time" class="invoice-card">
+        <template #header>
+          <div class="card-header">
+            <span>{{ item.title }}</span>
+            <router-link :to="{ path: '/dashboard/invoicedetails', query: { time: item.time } }">
+              <el-button>编辑</el-button>
+            </router-link>
+          </div>
+        </template>
+        <div class="card-content">
+          <div>发货量：{{ item.rows.filter(i => i.checked).length }}</div>
+          <div>创建日期：{{ dayjs(item.time).format('YYYY-MM-DD HH:mm') }}</div>
+        </div>
+      </el-card>
+    </div>
+
+    <el-dialog v-model="dialogFormVisible" title="添加发货单" width="500px">
       <el-form :model="form">
-        <el-form-item label="Promotion name" label-width="200px">
+        <el-form-item label="发货单标题" label-width="200px">
           <el-input v-model="form.title" placeholder="请输入发货单标题" style="width: 250px" />
         </el-form-item>
-        <el-form-item label="Zones" label-width="200px">
+        <el-form-item label="关联报价单" label-width="200px">
           <el-select
             v-model="form.quotedpriceTime"
             placeholder="请选择发货单对应的报价单"
@@ -38,6 +55,7 @@
 <script setup>
 import { reactive, ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
+import dayjs from 'dayjs';
 
 const dialogFormVisible = ref(false);
 const quotedpricelist = ref([]);
@@ -91,3 +109,20 @@ const addInvoice = () => {
   });
 };
 </script>
+
+<style>
+.invoice-container {
+  display: flex;
+  flex-wrap: wrap;
+}
+.invoice-card {
+  width: 300px;
+  margin: 10px;
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+</style>

@@ -4,6 +4,7 @@ specifiers:
   '@element-plus/icons-vue': ^2.0.9
   '@vitejs/plugin-vue': ^3.1.0
   '@vueuse/core': ^9.2.0
+  dayjs: ^1.11.5
   element-plus: ^2.2.17
   prettier: ^2.7.1
   vite: ^3.1.0
@@ -14,6 +15,7 @@ specifiers:
 dependencies:
   '@element-plus/icons-vue': 2.0.9_vue@3.2.39
   '@vueuse/core': 9.2.0_vue@3.2.39
+  dayjs: 1.11.5
   element-plus: 2.2.17_vue@3.2.39
   vue: 3.2.39
   vue-router: 4.1.5_vue@3.2.39
