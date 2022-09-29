@@ -45,17 +45,17 @@ import { read, utils } from 'xlsx';
 
 const time = ref();
 const quotedpriceTitle = ref('');
-const heads = ref(['品名', '单位', '单价']);
+const heads = ref(['默认品名', '单位', '单价']);
 const rows = ref([
-  { 品名: '丝瓜', 单位: '斤', 单价: 8 },
-  { 品名: '芥兰苗', 单位: '斤', 单价: 6 },
-  { 品名: '宁夏芥兰', 单位: '斤', 单价: 7 },
-  { 品名: '本地芥兰', 单位: '斤', 单价: 5 },
-  { 品名: '广东芥兰', 单位: '斤', 单价: 5 },
-  { 品名: '水东芥菜', 单位: '斤', 单价: 6 },
-  { 品名: '本地菜心', 单位: '斤', 单价: 5 },
-  { 品名: '苋菜', 单位: '斤', 单价: 6.5 },
-  { 品名: '紫椰菜', 单位: '斤', 单价: 4 },
+  { 默认品名: '丝瓜', 单位: '斤', 单价: 8 },
+  { 默认品名: '芥兰苗', 单位: '斤', 单价: 6 },
+  { 默认品名: '宁夏芥兰', 单位: '斤', 单价: 7 },
+  { 默认品名: '本地芥兰', 单位: '斤', 单价: 5 },
+  { 默认品名: '广东芥兰', 单位: '斤', 单价: 5 },
+  { 默认品名: '水东芥菜', 单位: '斤', 单价: 6 },
+  { 默认品名: '本地菜心', 单位: '斤', 单价: 5 },
+  { 默认品名: '苋菜', 单位: '斤', 单价: 6.5 },
+  { 默认品名: '紫椰菜', 单位: '斤', 单价: 4 },
 ]);
 
 function getQuotedpricelist() {
@@ -96,7 +96,6 @@ watchEffect(async () => {
     const data = await fileList.value[0].raw.arrayBuffer();
     const wb = read(data);
     const ws = wb.Sheets[wb.SheetNames[0]];
-    console.log('utils.sheet_to_json(ws) ===', utils, utils.sheet_to_json(ws));
     rows.value = utils.sheet_to_json(ws);
     heads.value = Object.keys(rows.value[0]);
   }

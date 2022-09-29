@@ -11,7 +11,7 @@
             <router-link
               :to="{ path: '/dashboard/quotedpricedetails', query: { time: item.time } }"
             >
-              <el-button>编辑</el-button>
+              <el-button :icon="Edit" />
             </router-link>
           </div>
         </template>
@@ -32,6 +32,7 @@
 import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import dayjs from 'dayjs';
+import { Delete, Edit } from '@element-plus/icons-vue';
 
 function getQuotedpricelist() {
   let quotedpricelist = localStorage.getItem('quotedpricelist');

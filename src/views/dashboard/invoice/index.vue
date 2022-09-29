@@ -9,13 +9,26 @@
         <template #header>
           <div class="card-header">
             <span>{{ item.title }}</span>
-            <router-link :to="{ path: '/dashboard/invoicedetails', query: { time: item.time } }">
-              <el-button>编辑</el-button>
-            </router-link>
+            <el-button-group class="ml-4">
+              <el-button
+                :icon="Edit"
+                @click="
+                  router.push({ path: '/dashboard/invoicedetails', query: { time: item.time } })
+                "
+              />
+              <!-- <el-button :icon="Delete" @click="deleteInvoice(item.time)" /> -->
+              <el-popconfirm title="确定删除此发货单吗?" @confirm="deleteInvoice(item.time)">
+                <template #reference>
+                  <el-button :icon="Delete" />
+                </template>
+              </el-popconfirm>
+            </el-button-group>
           </div>
         </template>
         <div class="card-content">
-          <div>发货量：{{ item.rows.filter(i => i.checked).length }}</div>
+          <div>
+            发货量：<span>{{ item.selectedIds ? item.selectedIds.length : 0 }}</span>
+          </div>
           <div>创建日期：{{ dayjs(item.time).format('YYYY-MM-DD HH:mm') }}</div>
         </div>
       </el-card>
@@ -56,6 +69,7 @@
 import { reactive, ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import dayjs from 'dayjs';
+import { Delete, Edit } from '@element-plus/icons-vue';
 
 const dialogFormVisible = ref(false);
 const quotedpricelist = ref([]);
@@ -92,8 +106,6 @@ onMounted(() => {
 
 const router = useRouter();
 const addInvoice = () => {
-  dialogFormVisible.value = false;
-
   const time = new Date().getTime();
   invoicelist.value.push({
     title: form.title,
@@ -102,11 +114,19 @@ const addInvoice = () => {
     rows: null,
   });
   localStorage.setItem('invoiceList', JSON.stringify(invoicelist.value));
+  dialogFormVisible.value = false;
 
   router.push({
     path: '/dashboard/invoiceDetails',
     query: { time },
   });
+};
+
+const deleteInvoice = time => {
+  let invoiceList = getInvoiceList();
+  invoiceList = invoiceList.filter(item => item.time !== time);
+  localStorage.setItem('invoiceList', JSON.stringify(invoiceList));
+  invoicelist.value = getInvoiceList();
 };
 </script>
 
