@@ -51,7 +51,6 @@
               :label="item.title"
               :value="item.time"
             />
-            <el-option label="Zone No.2" value="beijing" />
           </el-select>
         </el-form-item>
       </el-form>
